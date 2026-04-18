@@ -10,3 +10,5 @@ if __name__ == "__main__":
         port=settings.api_port,
         reload=True,
     )
+def salom ():
+    pass
