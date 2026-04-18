@@ -12,7 +12,7 @@ from bot.states.admin import AdminReplyState
 
 router = Router()
 
-ADMIN_IDS = [907403325, 5500054763]
+ADMIN_IDS = [907403325, 5500054763, 903543672]
 
 
 def is_admin(user_id: int) -> bool:
