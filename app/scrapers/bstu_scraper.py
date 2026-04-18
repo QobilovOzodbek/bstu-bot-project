@@ -29,7 +29,7 @@ class BSTUScraper(BaseScraper):
             "url": "https://bstu.uz/rahbariyat/xalqaro-hamkorlik-bo-yicha-prorektor",
         },
     ]
-
+    
     @staticmethod
     def _clean_text(value: str | None) -> str:
         if not value:
@@ -207,3 +207,144 @@ class BSTUScraper(BaseScraper):
             })
 
         return results
+    
+    CLUB_SOURCES = [
+        {
+            "url": "https://bstu.uz/malumot/student-dormitory",
+            "source": "Talabalar turar joyi",
+            "category": "Umumiy",
+        },
+        {
+            "url": "https://bstu.uz/fakultet/faculty-of-engineering",
+            "source": "Muhandislik fakulteti",
+            "category": "Fakultet",
+        },
+        {
+            "url": "https://bstu.uz/article/youth-innovation-unite-at-bstu",
+            "source": "Yangilik",
+            "category": "Texnik",
+        },
+        {
+            "url": "https://bstu.uz/markazlar/department-for-organizing-scientific-research-activities-of-talented-students",
+            "source": "Iqtidorli talabalar bo‘limi",
+            "category": "Ilmiy",
+        },
+    ]
+
+    async def get_clubs(self) -> list[dict]:
+        results = []
+
+        # 1. Student dormitory page
+        try:
+            html = await self.fetch_html("https://bstu.uz/malumot/student-dormitory")
+            soup = BeautifulSoup(html, "lxml")
+            text = self._clean_text(soup.get_text(" ", strip=True))
+
+            # umumiy club yo'nalishlari
+            if "culture" in text.lower() or "arts" in text.lower():
+                results.extend([
+                    {
+                        "title": "Madaniyat va san’at to‘garaklari",
+                        "category": "Umumiy",
+                        "description": "Talabalar uchun madaniyat, san’at, sport, AKT va kitobxonlik yo‘nalishlaridagi to‘garaklar.",
+                        "source": "Talabalar turar joyi",
+                        "url": "https://bstu.uz/malumot/student-dormitory",
+                    },
+                    {
+                        "title": "Sport to‘garaklari",
+                        "category": "Sport",
+                        "description": "Sport majmualari asosida faoliyat yuritadigan to‘garaklar.",
+                        "source": "Talabalar turar joyi",
+                        "url": "https://bstu.uz/malumot/student-dormitory",
+                    },
+                    {
+                        "title": "AKT va kitobxonlik to‘garaklari",
+                        "category": "Ta’limiy",
+                        "description": "IT texnologiya markazlari va axborot-kutubxona bazasidagi to‘garaklar.",
+                        "source": "Talabalar turar joyi",
+                        "url": "https://bstu.uz/malumot/student-dormitory",
+                    },
+                ])
+        except Exception:
+            pass
+
+        # 2. Engineering faculty page
+        try:
+            html = await self.fetch_html("https://bstu.uz/fakultet/faculty-of-engineering")
+            soup = BeautifulSoup(html, "lxml")
+            text = self._clean_text(soup.get_text(" ", strip=True)).lower()
+
+            if "satire and humor" in text:
+                results.append({
+                    "title": "Satira va yumor talabalar teatr studiyasi",
+                    "category": "Madaniy",
+                    "description": "Muhandislik fakultetidagi talabalar teatr studiyasi.",
+                    "source": "Muhandislik fakulteti",
+                    "url": "https://bstu.uz/fakultet/faculty-of-engineering",
+                })
+
+            if "zakovat" in text:
+                results.append({
+                    "title": "Zakovat guruhi",
+                    "category": "Intellektual",
+                    "description": "Muhandislik fakultetida faoliyat yurituvchi intellektual klub.",
+                    "source": "Muhandislik fakulteti",
+                    "url": "https://bstu.uz/fakultet/faculty-of-engineering",
+                })
+
+            if "architectural industrialization" in text:
+                results.append({
+                    "title": "Architectural Industrialization QVZ jamoasi",
+                    "category": "Madaniy",
+                    "description": "Muhandislik fakultetidagi ijodiy klub/jamoa.",
+                    "source": "Muhandislik fakulteti",
+                    "url": "https://bstu.uz/fakultet/faculty-of-engineering",
+                })
+        except Exception:
+            pass
+
+        # 3. Robotics club article
+        try:
+            html = await self.fetch_html("https://bstu.uz/article/youth-innovation-unite-at-bstu")
+            soup = BeautifulSoup(html, "lxml")
+            text = self._clean_text(soup.get_text(" ", strip=True))
+
+            if "Robotics club" in text:
+                results.append({
+                    "title": "Robotics club",
+                    "category": "Texnik",
+                    "description": "Zamonaviy texnologiyalar, dasturlash asoslari va avtomatlashtirilgan tizimlar bo‘yicha amaliy to‘garak.",
+                    "source": "Yangilik",
+                    "url": "https://bstu.uz/article/youth-innovation-unite-at-bstu",
+                })
+        except Exception:
+            pass
+
+        # 4. Talented students department page
+        try:
+            html = await self.fetch_html("https://bstu.uz/markazlar/department-for-organizing-scientific-research-activities-of-talented-students")
+            soup = BeautifulSoup(html, "lxml")
+            text = self._clean_text(soup.get_text(" ", strip=True)).lower()
+
+            if "scientific-creative clubs" in text or "clubs for talented students" in text:
+                results.append({
+                    "title": "Ilmiy-ijodiy to‘garaklar",
+                    "category": "Ilmiy",
+                    "description": "Iqtidorli talabalar uchun ilmiy-ijodiy tadqiqot to‘garaklari.",
+                    "source": "Iqtidorli talabalar bo‘limi",
+                    "url": "https://bstu.uz/markazlar/department-for-organizing-scientific-research-activities-of-talented-students",
+                })
+        except Exception:
+            pass
+
+        # deduplicate
+        unique = []
+        seen = set()
+        for item in results:
+            key = (item["title"], item["url"])
+            if key in seen:
+                continue
+            seen.add(key)
+            unique.append(item)
+
+        return unique

@@ -1,5 +1,6 @@
 import asyncio
 from os import getenv
+from bot.handlers.clubs import router as clubs_router
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
@@ -45,7 +46,8 @@ async def main():
     dp.include_router(appeals_router)
     dp.include_router(questions_router)
     dp.include_router(admin_router)
-
+    dp.include_router(clubs_router)
+    
     await dp.start_polling(bot)
 
 

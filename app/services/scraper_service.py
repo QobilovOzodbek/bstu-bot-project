@@ -55,6 +55,7 @@ class ScraperService:
 
     async def get_quick_links(self):
         return await self._get_or_set("quick_links", self.scraper.get_quick_links)
-
+    async def get_clubs(self):
+        return await self._get_or_set("clubs", self.scraper.get_clubs)
 
 scraper_service = ScraperService()

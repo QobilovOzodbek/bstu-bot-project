@@ -30,6 +30,7 @@ class APIClient:
 
     async def get_quick_links(self):
         return await self._get("/api/v1/links/")
-
+    async def get_clubs(self):
+        return await self._get("/api/v1/clubs/")
 
 api_client = APIClient()
