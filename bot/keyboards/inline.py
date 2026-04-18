@@ -13,10 +13,10 @@ def main_menu_keyboard() -> InlineKeyboardMarkup:
             ],
             [
                 InlineKeyboardButton(text="📞 Kontaktlar", callback_data="menu_contact"),
+                InlineKeyboardButton(text="🔗 Havolalar", callback_data="menu_links"),
+            ],
             [
                 InlineKeyboardButton(text="🎯 To‘garaklar", callback_data="menu_clubs"),
-            ],
-                InlineKeyboardButton(text="🔗 Havolalar", callback_data="menu_links"),
             ],
             [
                 InlineKeyboardButton(text="🗣 Murojaat qoldirish", callback_data="menu_appeal"),
