@@ -112,3 +112,36 @@ async def admin_reply_question_finish(message: Message, state: FSMContext):
 
     await message.answer("✅ Javob foydalanuvchiga yuborildi.")
     await state.clear()
+@router.message(Command("admin"))
+async def show_admin_panel(message: Message):
+    if not is_admin(message.from_user.id):
+        return # Admin bo'lmasa hech narsa qaytarmaydi
+    
+    await message.answer(
+        "👨‍💻 <b>Admin paneliga xush kelibsiz!</b>\n\nQuyidagi menyudan kerakli bo'limni tanlang:",
+        reply_markup=admin_panel_keyboard(),
+        parse_mode="HTML"
+    )
+
+@router.callback_query(F.data == "admin_statistics")
+async def show_statistics_handler(callback: CallbackQuery):
+    if not is_admin(callback.from_user.id):
+        await callback.answer("Siz admin emassiz!", show_alert=True)
+        return
+
+    stats = get_statistics()
+    
+    text = (
+        "📊 <b>Botning umumiy statistikasi</b>\n\n"
+        "📝 <b>Murojaatlar:</b>\n"
+        f"▫️ Jami: <b>{stats['appeals']['total']}</b> ta\n"
+        f"▫️ Yangi (kutilmoqda): <b>{stats['appeals']['new']}</b> ta\n"
+        f"▫️ Javob berilgan: <b>{stats['appeals']['answered']}</b> ta\n\n"
+        "❓ <b>Savollar:</b>\n"
+        f"▫️ Jami: <b>{stats['questions']['total']}</b> ta\n"
+        f"▫️ Yangi (kutilmoqda): <b>{stats['questions']['new']}</b> ta\n"
+        f"▫️ Javob berilgan: <b>{stats['questions']['answered']}</b> ta\n"
+    )
+    
+    await callback.message.edit_text(text, parse_mode="HTML", reply_markup=admin_panel_keyboard())
+    await callback.answer()
