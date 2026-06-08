@@ -73,3 +73,10 @@ def admin_question_reply_keyboard(question_id: int) -> InlineKeyboardMarkup:
             [InlineKeyboardButton(text="✍️ Javob berish", callback_data=f"admin_reply_question_{question_id}")]
         ]
     )
+
+def admin_panel_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="📊 Statistika", callback_data="admin_statistics")]
+        ]
+    )
