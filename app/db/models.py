@@ -71,3 +71,36 @@ def reply_to_question(question_id: int, reply_text: str):
     """, (reply_text, question_id))
     conn.commit()
     conn.close()
+
+def get_statistics():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # Murojaatlar statistikasi
+    cursor.execute("SELECT status, COUNT(*) as count FROM appeals GROUP BY status")
+    appeals_data = cursor.fetchall()
+    
+    appeals_stats = {"total": 0, "new": 0, "answered": 0}
+    for row in appeals_data:
+        status = row["status"]
+        count = row["count"]
+        appeals_stats[status] = count
+        appeals_stats["total"] += count
+
+    # Savollar statistikasi
+    cursor.execute("SELECT status, COUNT(*) as count FROM questions GROUP BY status")
+    questions_data = cursor.fetchall()
+    
+    questions_stats = {"total": 0, "new": 0, "answered": 0}
+    for row in questions_data:
+        status = row["status"]
+        count = row["count"]
+        questions_stats[status] = count
+        questions_stats["total"] += count
+
+    conn.close()
+    
+    return {
+        "appeals": appeals_stats,
+        "questions": questions_stats
+    }
